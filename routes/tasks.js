@@ -8,7 +8,7 @@ const users = [
         name: 'Jane Spoonfighter',
         user: 'janspoon@fighter.dev',
         password: '123',
-        id: 1,
+        id: '1',
     }
 ]
 
@@ -27,6 +27,8 @@ const tasks = [{
     state: 'concluido',
     deadline: '2025-03-14',
     id:2,
+    clientId: 2,
+    user: 'user',
 }
 ]
 let logedIn = false
@@ -43,10 +45,20 @@ routerTasks.post("/tasks", async (req, res)=>{
 routerTasks.get("/tasks/:userId",authenticateToken, async (req, res)=>{
     const userId = req.params.userId
     const token = req.headers.token
+    try{
     const decode = jwt.decode(token)
     const tokenId = decode.userId
-    if(tokenId = userId){
-    return res.status(201).send(tasks)
+   
+    if(tokenId === userId){
+        const userTasks = tasks.filter((task) => String(task.clientId) === String(userId));
+        console.debug(userTasks, tokenId)
+        return res.status(201).send(userTasks)
+    }else{
+        return res.status(401).json('Nao autorizado')
+    }}catch (error) {
+        // Se houver erro na verificação do token ou outra falha
+        console.error(error);
+        return res.status(400).json({ message: "Token inválido ou erro na requisição" });
     }
 })
 routerTasks.patch("/tasks", async (req, res)=>{
