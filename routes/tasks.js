@@ -4,7 +4,7 @@ const getConnection = require("../connect");
 const secret = "T2NzMFVhVzM4ZW9VdVR5Y3g0a0pXbTFRbGRaZG5mYzZB";
 const jwt = require("jsonwebtoken");
 const routerTasks = express.Router();
-
+const bcrypt = require("bcrypt");
 let logedIn = false;
 routerTasks.post("/tasks", authenticateToken, async (req, res) => {
   const userId = req.headers.userId;
@@ -143,7 +143,6 @@ routerTasks.patch("/tasks", authenticateToken, async (req, res) => {
                 }
               ); // Atualiza o estado da tarefa
             } else {
-              console.debug({ clientId, userId });
               return res.status(400).send("you cant do this");
             }
           } else {
@@ -170,29 +169,29 @@ routerTasks.post("/login", async (req, res) => {
     connection.query(
       "SELECT * FROM users WHERE user =?  ",
       [user],
-      function (err, rows, fields) {
-        if (!err) {
+      async function (err, rows, fields) {
+        if (!err && rows[0] != null) {
           const passwordReal = rows[0].password;
-          // Check if the password matches
-          if (password === passwordReal) {
+          const isMatch = await bcrypt.compare(password, passwordReal);
+          console.debug({ isMatch, password, passwordReal });
+          if (isMatch || password === passwordReal) {
             const userId = rows[0].id;
             logedIn = true;
             const token = jwt.sign({ userId }, secret, {
               expiresIn: 84600,
             });
+
             const data = {
               token: token,
               userId: userId,
             };
             return res.status(201).send(data);
           } else {
-            console.log(passwordReal, password, user, rows);
             return res.status(400).send("Password is incorrect");
           }
         } else {
-          if (!existingUser) {
-            return res.status(400).send("User not found");
-          }
+          return res.status(400).send("User not found");
+
           console.log(err);
         }
       }
@@ -212,7 +211,7 @@ routerTasks.get("/getnameuser", authenticateToken, async (req, res) => {
   try {
     const decode = jwt.decode(token);
     const tokenId = decode.userId;
-    console.debug("ids", tokenId, userId);
+
     if (parseInt(tokenId) === parseInt(userId)) {
       const connection = await getConnection();
       connection.query(
@@ -336,14 +335,17 @@ routerTasks.post("/adduser", authenticateToken, async (req, res) => {
       connection.query(
         "SELECT * FROM users WHERE id=? ",
         [tokenId],
-        function (err, rows, fields) {
+        async function (err, rows, fields) {
           if (!err) {
             const useracess = rows[0].useracess;
             const userGroupId = rows[0].groupId;
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
+            console.debug(password);
             if (useracess === "admin") {
               connection.query(
                 "INSERT INTO users(name,user,password,useracess,groupId) values (?,?,?,?,?) ",
-                [username, useremail, password, userrole, userGroupId],
+                [username, useremail, hashedPassword, userrole, userGroupId],
                 function (err, rows, fields) {
                   if (!err) {
                     console.log("added sucessly");
