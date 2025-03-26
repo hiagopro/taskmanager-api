@@ -1,9 +1,9 @@
 const mysql = require("mysql");
 let connectionServer;
-const hostSecret = "database-1.c5umiqak6ieq.us-east-2.rds.amazonaws.com";
-const userSecret = "admin";
-const passwordSecret = "PwKiTRnhz3xPhCMh3P";
-const databaseSecret = "tasks";
+const hostSecret = process.env.HOST_DATABASE;
+const userSecret = process.env.USER;
+const passwordSecret = process.env.PASSWORD;
+const databaseSecret = process.env.DATABASE;
 async function getConnection() {
   if (connectionServer === undefined) {
     connectionServer = mysql.createConnection({

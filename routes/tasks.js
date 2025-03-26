@@ -1,10 +1,10 @@
 const express = require("express");
 const authenticateToken = require("../middlewares/authenthicationToken");
 const getConnection = require("../connect");
-const secret = "T2NzMFVhVzM4ZW9VdVR5Y3g0a0pXbTFRbGRaZG5mYzZB";
 const jwt = require("jsonwebtoken");
 const routerTasks = express.Router();
 const bcrypt = require("bcrypt");
+const secret = process.env.JWT_SECRET;
 let logedIn = false;
 routerTasks.post("/tasks", authenticateToken, async (req, res) => {
   const userId = req.headers.userId;
@@ -172,8 +172,9 @@ routerTasks.post("/login", async (req, res) => {
       async function (err, rows, fields) {
         if (!err && rows[0] != null) {
           const passwordReal = rows[0].password;
+          const id = rows[0].id;
           const isMatch = await bcrypt.compare(password, passwordReal);
-          console.debug({ isMatch, password, passwordReal });
+          console.debug({ isMatch, password, passwordReal, id }, { rows });
           if (isMatch || password === passwordReal) {
             const userId = rows[0].id;
             logedIn = true;
@@ -339,9 +340,10 @@ routerTasks.post("/adduser", authenticateToken, async (req, res) => {
           if (!err) {
             const useracess = rows[0].useracess;
             const userGroupId = rows[0].groupId;
+            const id = rows[0].id;
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
-            console.debug(password);
+            console.debug(password, hashedPassword, id);
             if (useracess === "admin") {
               connection.query(
                 "INSERT INTO users(name,user,password,useracess,groupId) values (?,?,?,?,?) ",
