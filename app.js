@@ -8,10 +8,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 const frontUrl = process.env.FRONT_URL;
 const whitelist = [frontUrl];
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
 
+app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: (origin, callback) => {
+      console.debug({ origin, whitelist });
       if (whitelist.indexOf(origin) !== -1) {
         return callback(null, true);
       }
