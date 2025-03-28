@@ -163,7 +163,46 @@ routerTasks.patch("/tasks", authenticateToken, async (req, res) => {
   }
 });
 routerTasks.post("/login", async (req, res) => {
-  res.status(201).send("login ok");
+  try {
+    const { user, password } = req.body;
+
+    const connection = await getConnection();
+    connection.query(
+      "SELECT * FROM users WHERE user =?  ",
+      [user],
+      async function (err, rows, fields) {
+        if (!err && rows[0] != null) {
+          const passwordReal = rows[0].password;
+          const id = rows[0].id;
+          const isMatch = await bcrypt.compare(password, passwordReal);
+          console.debug({ isMatch, password, passwordReal, id }, { rows });
+          if (isMatch || password === passwordReal) {
+            const userId = rows[0].id;
+            logedIn = true;
+            const token = jwt.sign({ userId }, secret, {
+              expiresIn: 84600,
+            });
+
+            const data = {
+              token: token,
+              userId: userId,
+            };
+            return res.status(201).send(data);
+          } else {
+            return res.status(400).send("Password is incorrect");
+          }
+        } else {
+          return res.status(400).send("User not found");
+
+          console.log(err);
+        }
+      }
+    );
+    // If the user doesn't exist, return an error
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Something went wrong");
+  }
 });
 routerTasks.get("/logedin", async (req, res) => {
   return res.status(201).send(logedIn);
