@@ -8,6 +8,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 const frontUrl = process.env.FRONT_URL;
 const whitelist = [frontUrl];
+console.debug(whitelist);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 
