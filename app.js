@@ -11,7 +11,12 @@ const whitelist = [frontUrl];
 console.debug(whitelist);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
-
+app.use(
+  cors({
+    origin: true, // Permite todas as origens
+    credentials: true, // Se você estiver usando cookies ou sessões
+  })
+);
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
