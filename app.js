@@ -17,7 +17,7 @@ app.use(
   cors({
     origin: (origin, callback) => {
       console.debug({ origin, whitelist });
-      if (!origin) {
+      if (origin === undefined) {
         return callback(null, true); // Permite requisições same-origin
       }
 
