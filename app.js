@@ -18,6 +18,7 @@ app.use(
     origin: (origin, callback) => {
       console.debug({ origin, whitelist }, "inicio da origin");
       if (origin === undefined) {
+        console.debug("passou no if");
         return callback(null, true); // Permite requisições same-origin
       }
 
