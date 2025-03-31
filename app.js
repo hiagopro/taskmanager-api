@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: (origin, callback) => {
-      console.debug({ origin, whitelist });
+      console.debug({ origin, whitelist }, "inicio da origin");
       if (origin === undefined) {
         return callback(null, true); // Permite requisições same-origin
       }
@@ -28,8 +28,8 @@ app.use(
       const errorMessage = `The CORS policy for this site does not allow access from '${origin}'. Allowed origins: [${whitelist
         .map((acceptedOrigin) => `'${acceptedOrigin}'`)
         .join(", ")}]`;
+      console.debug({ origin, whitelist, errorMessage }, "final da origin");
 
-      console.warn(errorMessage);
       return callback(new Error(errorMessage), false);
     },
   })
