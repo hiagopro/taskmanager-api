@@ -16,9 +16,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: (origin, callback) => {
+      // Quando a origem for undefined, significa que a requisição é "same-origin"
+      if (!origin) {
+        return callback(null, true); // Permite requisições same-origin
+      }
+
       console.debug({ origin, whitelist });
+
       if (whitelist.indexOf(origin) !== -1) {
-        return callback(null, true);
+        return callback(null, true); // Permite a origem se estiver na whitelist
       }
 
       const errorMessage = `The CORS policy for this site does not allow access from '${origin}'. Allowed origins: [${whitelist
