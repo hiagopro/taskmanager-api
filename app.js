@@ -19,7 +19,7 @@ app.use(
       console.debug({ origin, whitelist }, "inicio da origin");
       if (origin === undefined) {
         console.debug("passou no if");
-        return callback(null, true); // Permite requisições same-origin
+        return callback(null, { origin: true }); // Permite requisições same-origin
       }
 
       if (whitelist.indexOf(origin) !== -1) {
