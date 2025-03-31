@@ -164,6 +164,7 @@ routerTasks.patch("/tasks", authenticateToken, async (req, res) => {
 });
 routerTasks.post("/login", async (req, res) => {
   try {
+    console.log("login!!");
     const { user, password } = req.body;
 
     const connection = await getConnection();
@@ -200,6 +201,7 @@ routerTasks.post("/login", async (req, res) => {
     );
     // If the user doesn't exist, return an error
   } catch (error) {
+    console.log("login!! catch");
     console.error(error);
     return res.status(500).send("Something went wrong");
   }
