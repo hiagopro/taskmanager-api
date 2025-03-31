@@ -2,16 +2,7 @@ require("dotenv").config({ path: ".env" });
 const express = require("express");
 const app = express();
 const cors = require("cors");
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      console.debug({ origin, whitelist }, "inicio da origin");
-
-      console.debug("passou no if");
-      callback(null, true); // Permite requisições same-origin
-    },
-  })
-);
+app.use(cors());
 const routerTasks = require("./routes/tasks.js");
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
